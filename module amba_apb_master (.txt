@@ -1,0 +1,58 @@
+module amba_apb_master (
+  input clk,
+  input reset,
+  input [31:0] address,
+  input [31:0] write_data,
+  input write_enable,
+  input read_enable,
+  output [31:0] read_data
+);
+
+  reg [1:0] state;
+  reg [31:0] internal_address;
+  reg [31:0] internal_write_data;
+  reg internal_write_enable;
+  reg internal_read_enable;
+  reg [31:0] internal_read_data;
+
+  always @(posedge clk) begin
+    if (reset) begin
+      state <= 2'b00;
+      internal_address <= 0;
+      internal_write_data <= 0;
+      internal_write_enable <= 0;
+      internal_read_enable <= 0;
+    end else begin
+      case (state)
+        2'b00: begin  // Idle state
+          if (write_enable || read_enable) begin
+            internal_address <= address;
+            internal_write_data <= write_data;
+            internal_write_enable <= write_enable;
+            internal_read_enable <= read_enable;
+            state <= 2'b01;
+          end
+        end
+
+        2'b01: begin  // Address and control phase
+          // Generate appropriate control signals based on the state and inputs
+          // Send the address and control signals to the APB bus
+          // Transition to the next state based on the state of the APB bus
+          // For example, if the APB bus signals an error, transition to an error state (if defined)
+          state <= next_state;  // Replace next_state with the appropriate next state based on bus responses
+        end
+
+        // Add additional cases for data phase, response phase, and error handling if needed
+        // Refer to the AMBA APB specification for the complete state machine
+
+        default: begin
+          // Handle error or undefined states
+        end
+      endcase
+    end
+  end
+
+  // Assign the internal_read_data to the read_data output
+  assign read_data = internal_read_data;
+
+endmodule
